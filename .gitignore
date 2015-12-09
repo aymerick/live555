@@ -1,6 +1,7 @@
 Makefile
 *.o
 *.a
+.DS_Store
 
 mediaServer/live555MediaServer
 proxyServer/live555ProxyServer
