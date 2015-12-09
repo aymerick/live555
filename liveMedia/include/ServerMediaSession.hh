@@ -39,6 +39,14 @@ public:
 				       Boolean isSSM = False,
 				       char const* miscSDPLines = NULL);
 
+  void setPublicIP(char const* ip) {
+     fPublicIP = ip;
+  }
+
+  char const* publicIP() {
+     return fPublicIP;
+  }
+
   static Boolean lookupByName(UsageEnvironment& env,
                               char const* mediumName,
                               ServerMediaSession*& resultSession);
@@ -95,6 +103,7 @@ private:
   struct timeval fCreationTime;
   unsigned fReferenceCount;
   Boolean fDeleteWhenUnreferenced;
+  char const* fPublicIP;
 };
 
 

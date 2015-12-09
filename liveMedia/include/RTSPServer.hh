@@ -40,6 +40,14 @@ public:
       //     torn down) if no RTSP commands - or RTCP "RR" packets - from the
       //     client are received in at least "reclamationSeconds" seconds.
 
+  void setPublicIP(char const* ip) {
+    fPublicIP = ip;
+  }
+
+  char const* publicIP() {
+    return fPublicIP;
+  }
+
   static Boolean lookupByName(UsageEnvironment& env, char const* name,
 			      RTSPServer*& resultServer);
 
@@ -282,6 +290,7 @@ private:
   unsigned fRegisterRequestCounter;
   UserAuthenticationDatabase* fAuthDB;
   Boolean fAllowStreamingRTPOverTCP; // by default, True
+  char const* fPublicIP;
 };
 
 

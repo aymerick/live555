@@ -151,8 +151,12 @@ char* RTSPServer
 }
 
 char* RTSPServer::rtspURLPrefix(int clientSocket) const {
+  char const* ip = NULL;
   struct sockaddr_in ourAddress;
-  if (clientSocket < 0) {
+
+  if (fPublicIP != NULL) {
+    ip = fPublicIP;
+  } else if (clientSocket < 0) {
     // Use our default IP address in the URL:
     ourAddress.sin_addr.s_addr = ReceivingInterfaceAddr != 0
       ? ReceivingInterfaceAddr
@@ -161,15 +165,18 @@ char* RTSPServer::rtspURLPrefix(int clientSocket) const {
     SOCKLEN_T namelen = sizeof ourAddress;
     getsockname(clientSocket, (struct sockaddr*)&ourAddress, &namelen);
   }
-  
+
+  if (ip == NULL) {
+    ip = AddressString(ourAddress).val();
+  }
+
   char urlBuffer[100]; // more than big enough for "rtsp://<ip-address>:<port>/"
   
   portNumBits portNumHostOrder = ntohs(fServerPort.num());
   if (portNumHostOrder == 554 /* the default port number */) {
-    sprintf(urlBuffer, "rtsp://%s/", AddressString(ourAddress).val());
+    sprintf(urlBuffer, "rtsp://%s/", ip);
   } else {
-    sprintf(urlBuffer, "rtsp://%s:%hu/",
-	    AddressString(ourAddress).val(), portNumHostOrder);
+    sprintf(urlBuffer, "rtsp://%s:%hu/", ip, portNumHostOrder);
   }
   
   return strDup(urlBuffer);
@@ -239,7 +246,7 @@ RTSPServer::RTSPServer(UsageEnvironment& env,
     fClientConnectionsForHTTPTunneling(NULL), // will get created if needed
     fTCPStreamingDatabase(HashTable::create(ONE_WORD_HASH_KEYS)),
     fPendingRegisterRequests(HashTable::create(ONE_WORD_HASH_KEYS)), fRegisterRequestCounter(0),
-    fAuthDB(authDatabase), fAllowStreamingRTPOverTCP(True) {
+    fAuthDB(authDatabase), fAllowStreamingRTPOverTCP(True), fPublicIP(NULL) {
 }
 
 // A data structure that is used to implement "fTCPStreamingDatabase"
@@ -1604,6 +1611,12 @@ void RTSPServer::RTSPClientSession
     
     AddressString destAddrStr(destinationAddress);
     AddressString sourceAddrStr(sourceAddr);
+
+    char const* sourceIP = sourceAddrStr.val();
+    if (fOurRTSPServer.publicIP() != NULL) {
+      sourceIP = fOurRTSPServer.publicIP();
+    }
+
     char timeoutParameterString[100];
     if (fOurRTSPServer.fReclamationSeconds > 0) {
       sprintf(timeoutParameterString, ";timeout=%u", fOurRTSPServer.fReclamationSeconds);
@@ -1621,7 +1634,7 @@ void RTSPServer::RTSPClientSession
 		     "Session: %08X%s\r\n\r\n",
 		     ourClientConnection->fCurrentCSeq,
 		     dateHeader(),
-		     destAddrStr.val(), sourceAddrStr.val(), ntohs(serverRTPPort.num()), ntohs(serverRTCPPort.num()), destinationTTL,
+		     destAddrStr.val(), sourceIP, ntohs(serverRTPPort.num()), ntohs(serverRTCPPort.num()), destinationTTL,
 		     fOurSessionId, timeoutParameterString);
 	    break;
 	  }
@@ -1639,7 +1652,7 @@ void RTSPServer::RTSPClientSession
 		     "Session: %08X%s\r\n\r\n",
 		     ourClientConnection->fCurrentCSeq,
 		     dateHeader(),
-		     streamingModeString, destAddrStr.val(), sourceAddrStr.val(), ntohs(serverRTPPort.num()), destinationTTL,
+		     streamingModeString, destAddrStr.val(), sourceIP, ntohs(serverRTPPort.num()), destinationTTL,
 		     fOurSessionId, timeoutParameterString);
 	    break;
 	  }
@@ -1655,7 +1668,7 @@ void RTSPServer::RTSPClientSession
 		     "Session: %08X%s\r\n\r\n",
 		     ourClientConnection->fCurrentCSeq,
 		     dateHeader(),
-		     destAddrStr.val(), sourceAddrStr.val(), ntohs(clientRTPPort.num()), ntohs(clientRTCPPort.num()), ntohs(serverRTPPort.num()), ntohs(serverRTCPPort.num()),
+		     destAddrStr.val(), sourceIP, ntohs(clientRTPPort.num()), ntohs(clientRTCPPort.num()), ntohs(serverRTPPort.num()), ntohs(serverRTCPPort.num()),
 		     fOurSessionId, timeoutParameterString);
 	    break;
 	  }
@@ -1671,7 +1684,7 @@ void RTSPServer::RTSPClientSession
 		       "Session: %08X%s\r\n\r\n",
 		       ourClientConnection->fCurrentCSeq,
 		       dateHeader(),
-		       destAddrStr.val(), sourceAddrStr.val(), rtpChannelId, rtcpChannelId,
+		       destAddrStr.val(), sourceIP, rtpChannelId, rtcpChannelId,
 		       fOurSessionId, timeoutParameterString);
 	    }
 	    break;
@@ -1685,7 +1698,7 @@ void RTSPServer::RTSPClientSession
 		     "Session: %08X%s\r\n\r\n",
 		     ourClientConnection->fCurrentCSeq,
 		     dateHeader(),
-		     streamingModeString, destAddrStr.val(), sourceAddrStr.val(), ntohs(clientRTPPort.num()), ntohs(serverRTPPort.num()),
+		     streamingModeString, destAddrStr.val(), sourceIP, ntohs(clientRTPPort.num()), ntohs(serverRTPPort.num()),
 		     fOurSessionId, timeoutParameterString);
 	    break;
 	  }

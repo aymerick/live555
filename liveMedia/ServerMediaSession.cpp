@@ -206,7 +206,12 @@ Boolean ServerMediaSession::isServerMediaSession() const {
 
 char* ServerMediaSession::generateSDPDescription() {
   AddressString ipAddressStr(ourIPAddress(envir()));
-  unsigned ipAddressStrSize = strlen(ipAddressStr.val());
+  char const* ipStr = ipAddressStr.val();
+  if (fPublicIP != NULL) {
+    ipStr = fPublicIP;
+  }
+
+  unsigned ipAddressStrSize = strlen(ipStr);
 
   // For a SSM sessions, we need a "a=source-filter: incl ..." line also:
   char* sourceFilterLine;
@@ -217,7 +222,7 @@ char* ServerMediaSession::generateSDPDescription() {
     unsigned const sourceFilterFmtSize = strlen(sourceFilterFmt) + ipAddressStrSize + 1;
 
     sourceFilterLine = new char[sourceFilterFmtSize];
-    sprintf(sourceFilterLine, sourceFilterFmt, ipAddressStr.val());
+    sprintf(sourceFilterLine, sourceFilterFmt, ipStr);
   } else {
     sourceFilterLine = strDup("");
   }
@@ -283,7 +288,7 @@ char* ServerMediaSession::generateSDPDescription() {
     snprintf(sdp, sdpLength, sdpPrefixFmt,
 	     fCreationTime.tv_sec, fCreationTime.tv_usec, // o= <session id>
 	     1, // o= <version> // (needs to change if params are modified)
-	     ipAddressStr.val(), // o= <address>
+	     ipStr, // o= <address>
 	     fDescriptionSDPString, // s= <description>
 	     fInfoSDPString, // i= <info>
 	     libNameStr, libVersionStr, // a=tool:
