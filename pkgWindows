@@ -18,6 +18,7 @@ mv BasicUsageEnvironment/libBasicUsageEnvironment.lib live555/$1/lib/
 rm BasicUsageEnvironment/*.obj
 
 cp groupsock/include/*.hh live555/include/
+cp groupsock/include/*.h live555/include/
 mv groupsock/libgroupsock.lib live555/$1/lib/
 rm groupsock/*.obj
 
