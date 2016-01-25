@@ -1,0 +1,30 @@
+#!/bin/sh
+
+usage() {
+    echo "Usage: $0 (x64|x86)"
+    exit 1
+}
+
+if [ $# -ne 1 ]
+then
+    usage $*
+fi
+
+mkdir -p live555/include
+mkdir -p live555/$1/lib
+
+cp BasicUsageEnvironment/include/*.hh live555/include/
+mv BasicUsageEnvironment/libBasicUsageEnvironment.lib live555/$1/lib/
+rm BasicUsageEnvironment/*.obj
+
+cp groupsock/include/*.hh live555/include/
+mv groupsock/libgroupsock.lib live555/$1/lib/
+rm groupsock/*.obj
+
+cp liveMedia/include/*.hh live555/include/
+mv liveMedia/libliveMedia.lib live555/$1/lib/
+rm liveMedia/*.obj
+
+cp UsageEnvironment/include/*.hh live555/include/
+mv UsageEnvironment/libUsageEnvironment.lib live555/$1/lib/
+rm UsageEnvironment/*.obj
