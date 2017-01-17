@@ -1,7 +1,7 @@
 /**********
 This library is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation; either version 2.1 of the License, or (at your
+Free Software Foundation; either version 3 of the License, or (at your
 option) any later version. (See <http://www.gnu.org/copyleft/lesser.html>.)
 
 This library is distributed in the hope that it will be useful, but WITHOUT
@@ -14,18 +14,19 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 **********/
 // "mTunnel" multicast access service
-// Copyright (c) 1996-2015 Live Networks, Inc.  All rights reserved.
+// Copyright (c) 1996-2017 Live Networks, Inc.  All rights reserved.
 // Helper routines to implement 'group sockets'
 // Implementation
 
 #include "GroupsockHelper.hh"
 
-#if defined(__WIN32__) || defined(_WIN32)
+#if (defined(__WIN32__) || defined(_WIN32)) && !defined(__MINGW32__)
 #include <time.h>
 extern "C" int initializeWinsockIfNecessary();
 #else
 #include <stdarg.h>
 #include <time.h>
+#include <sys/time.h>
 #include <fcntl.h>
 #define initializeWinsockIfNecessary() 1
 #endif
@@ -284,6 +285,10 @@ int setupStreamSocket(UsageEnvironment& env,
 int readSocket(UsageEnvironment& env,
 	       int socket, unsigned char* buffer, unsigned bufferSize,
 	       struct sockaddr_in& fromAddress) {
+	
+	// ASE to remove
+//	printf( "readSocket\r\n" );
+	
   SOCKLEN_T addressSize = sizeof fromAddress;
   int bytesRead = recvfrom(socket, (char*)buffer, bufferSize, 0,
 			   (struct sockaddr*)&fromAddress,
@@ -567,6 +572,11 @@ static Boolean getSourcePort0(int socket, portNumBits& resultPortNum/*host order
 }
 
 Boolean getSourcePort(UsageEnvironment& env, int socket, Port& port) {
+	
+	// ASE to remove
+//	printf( "getSourcePort\r\n" );
+
+	
   portNumBits portNum = 0;
   if (!getSourcePort0(socket, portNum) || portNum == 0) {
     // Hack - call bind(), then try again:
@@ -752,7 +762,7 @@ char const* timestampString() {
   return (char const*)&timeString;
 }
 
-#if defined(__WIN32__) || defined(_WIN32)
+#if (defined(__WIN32__) || defined(_WIN32)) && !defined(__MINGW32__)
 // For Windoze, we need to implement our own gettimeofday()
 
 // used to make sure that static variables in gettimeofday() aren't initialized simultaneously by multiple threads

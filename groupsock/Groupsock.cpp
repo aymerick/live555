@@ -1,7 +1,7 @@
 /**********
 This library is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation; either version 2.1 of the License, or (at your
+Free Software Foundation; either version 3 of the License, or (at your
 option) any later version. (See <http://www.gnu.org/copyleft/lesser.html>.)
 
 This library is distributed in the hope that it will be useful, but WITHOUT
@@ -13,7 +13,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with this library; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 **********/
-// Copyright (c) 1996-2015 Live Networks, Inc.  All rights reserved.
+// Copyright (c) 1996-2017 Live Networks, Inc.  All rights reserved.
 // 'Group sockets'
 // Implementation
 
@@ -360,8 +360,8 @@ Boolean Groupsock::handleRead(unsigned char* buffer, unsigned bufferMaxSize,
 
 Boolean Groupsock::wasLoopedBackFromUs(UsageEnvironment& env,
 				       struct sockaddr_in& fromAddressAndPort) {
-  if (fromAddressAndPort.sin_addr.s_addr
-      == ourIPAddress(env)) {
+  if (fromAddressAndPort.sin_addr.s_addr == ourIPAddress(env) ||
+      fromAddressAndPort.sin_addr.s_addr == 0x7F000001/*127.0.0.1*/) {
     if (fromAddressAndPort.sin_port == sourcePortNum()) {
 #ifdef DEBUG_LOOPBACK_CHECKING
       if (DebugLevel >= 3) {
