@@ -83,6 +83,9 @@ void BasicTaskScheduler0::doEventLoop(char volatile* watchVariable) {
 }
 
 EventTriggerId BasicTaskScheduler0::createEventTrigger(TaskFunc* eventHandlerProc) {
+
+  _triggerMutex.lock();
+
   unsigned i = fLastUsedTriggerNum;
   EventTriggerId mask = fLastUsedTriggerMask;
 
@@ -99,15 +102,20 @@ EventTriggerId BasicTaskScheduler0::createEventTrigger(TaskFunc* eventHandlerPro
       fLastUsedTriggerMask = mask;
       fLastUsedTriggerNum = i;
 
+      _triggerMutex.unlock();
       return mask;
     }
   } while (i != fLastUsedTriggerNum);
+
+  _triggerMutex.unlock();
 
   // All available event triggers are allocated; return 0 instead:
   return 0;
 }
 
 void BasicTaskScheduler0::deleteEventTrigger(EventTriggerId eventTriggerId) {
+  _triggerMutex.lock();
+
   fTriggersAwaitingHandling &=~ eventTriggerId;
 
   if (eventTriggerId == fLastUsedTriggerMask) { // common-case optimization:
@@ -125,9 +133,13 @@ void BasicTaskScheduler0::deleteEventTrigger(EventTriggerId eventTriggerId) {
       mask >>= 1;
     }
   }
+  _triggerMutex.unlock();
 }
 
 void BasicTaskScheduler0::triggerEvent(EventTriggerId eventTriggerId, void* clientData) {
+
+  _triggerMutex.lock();
+
   // First, record the "clientData".  (Note that we allow "eventTriggerId" to be a combination of bits for multiple events.)
   EventTriggerId mask = 0x80000000;
   for (unsigned i = 0; i < MAX_NUM_EVENT_TRIGGERS; ++i) {
@@ -141,6 +153,8 @@ void BasicTaskScheduler0::triggerEvent(EventTriggerId eventTriggerId, void* clie
   // (Note that because this function (unlike others in the library) can be called from an external thread, we do this last, to
   //  reduce the risk of a race condition.)
   fTriggersAwaitingHandling |= eventTriggerId;
+
+  _triggerMutex.unlock();
 }
 
 

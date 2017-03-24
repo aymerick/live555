@@ -177,6 +177,7 @@ void BasicTaskScheduler::SingleStep(unsigned maxDelayTime) {
 
   // Also handle any newly-triggered event (Note that we do this *after* calling a socket handler,
   // in case the triggered event handler modifies The set of readable sockets.)
+	_triggerMutex.lock();
   if (fTriggersAwaitingHandling != 0) {
     if (fTriggersAwaitingHandling == fLastUsedTriggerMask) {
       // Common-case optimization for a single event trigger:
@@ -207,6 +208,7 @@ void BasicTaskScheduler::SingleStep(unsigned maxDelayTime) {
       } while (i != fLastUsedTriggerNum);
     }
   }
+	_triggerMutex.unlock();
 
   // Also handle any delayed event that may have come due.
   fDelayQueue.handleAlarm();

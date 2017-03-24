@@ -17,6 +17,8 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 // Basic Usage Environment: for a simple, non-scripted, console application
 // C++ header
 
+#include <mutex>
+
 #ifndef _BASIC_USAGE_ENVIRONMENT0_HH
 #define _BASIC_USAGE_ENVIRONMENT0_HH
 
@@ -104,6 +106,7 @@ protected:
   int fLastHandledSocketNum;
 
   // To implement event triggers:
+  std::mutex _triggerMutex; // ASE In our streaming server trigger are used by many threads, we have to protect them.
   EventTriggerId volatile fTriggersAwaitingHandling; // implemented as a 32-bit bitmap
   EventTriggerId fLastUsedTriggerMask; // implemented as a 32-bit bitmap
   TaskFunc* fTriggeredEventHandlers[MAX_NUM_EVENT_TRIGGERS];
