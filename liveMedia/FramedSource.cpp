@@ -59,10 +59,6 @@ void FramedSource::getNextFrame(unsigned char* to, unsigned maxSize,
 				void* afterGettingClientData,
 				onCloseFunc* onCloseFunc,
 				void* onCloseClientData) {
-					
-	// ASE To remove
-//	printf("FramedSource::getNextFrame\r\n");
-					
   // Make sure we're not already being read:
   if (fIsCurrentlyAwaitingData) {
     envir() << "FramedSource[" << this << "]::getNextFrame(): attempting to read more than once at the same time!\n";

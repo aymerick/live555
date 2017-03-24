@@ -75,10 +75,7 @@ H264or5VideoRTPSink
 		      u_int8_t const* pps, unsigned ppsSize)
   : VideoRTPSink(env, RTPgs, rtpPayloadFormat, 90000, hNumber == 264 ? "H264" : "H265"),
     fHNumber(hNumber), fOurFragmenter(NULL), fFmtpSDPLine(NULL) {
-		
-	// ASE to remove
-//	printf("H264or5VideoRTPSink::H264or5VideoRTPSink\r\n");
-		
+
   if (vps != NULL) {
     fVPSSize = vpsSize;
     fVPS = new u_int8_t[fVPSSize];
@@ -87,8 +84,7 @@ H264or5VideoRTPSink
     fVPSSize = 0;
     fVPS = NULL;
   }
-	// ASE to remove
-//	printf("H264or5VideoRTPSink::H264or5VideoRTPSink - SPS : size %u\r\n", spsSize);
+
   if (sps != NULL) {
     fSPSSize = spsSize;
     fSPS = new u_int8_t[fSPSSize];
@@ -97,16 +93,10 @@ H264or5VideoRTPSink
     fSPSSize = 0;
     fSPS = NULL;
   }
-	// ASE to remove
-//	printf("H264or5VideoRTPSink::H264or5VideoRTPSink - PPS : size %u \r\n", ppsSize);
-	
+
   if (pps != NULL) {
     fPPSSize = ppsSize;
     fPPS = new u_int8_t[fPPSSize];
-
-	// ASE to remove
-//	printf("H264or5VideoRTPSink::H264or5VideoRTPSink - PPS2 : size %x %u %x\r\n", fPPSSize, fPPS, pps);
-
     memmove(fPPS, pps, fPPSSize);
   } else {
     fPPSSize = 0;
@@ -126,15 +116,9 @@ H264or5VideoRTPSink::~H264or5VideoRTPSink() {
 }
 
 Boolean H264or5VideoRTPSink::continuePlaying() {
-	// ASE to remove
-//	printf("H264or5VideoRTPSink::continuePlaying\r\n");
-	
   // First, check whether we have a 'fragmenter' class set up yet.
   // If not, create it now:
   if (fOurFragmenter == NULL) {
-	// ASE to remove
-//	printf("H264or5VideoRTPSink::continuePlaying - new fragmenter.\r\n");
-
     fOurFragmenter = new H264or5Fragmenter(fHNumber, envir(), fSource, OutPacketBuffer::maxSize,
 					   ourMaxPacketSize() - 12/*RTP hdr size*/);
   } else {
@@ -193,24 +177,12 @@ H264or5Fragmenter::~H264or5Fragmenter() {
 }
 
 void H264or5Fragmenter::doGetNextFrame() {
-	// ASE to remove
-//	printf("H264or5Fragmenter::doGetNextFrame\r\n");
-	
   if (fNumValidDataBytes == 1) {
-	// ASE to remove
-//	printf("H264or5Fragmenter::doGetNextFrame - new frame - begin\r\n");
-
     // We have no NAL unit data currently in the buffer.  Read a new one:
     fInputSource->getNextFrame(&fInputBuffer[1], fInputBufferSize - 1,
 			       afterGettingFrame, this,
 			       FramedSource::handleClosure, this);
-
-	// ASE to remove
-//	printf("H264or5Fragmenter::doGetNextFrame - new frame - end\r\n");
   } else {
-	// ASE to remove
-//	printf("H264or5Fragmenter::doGetNextFrame - fragmentation - begin\r\n");
-
     // We have NAL unit data in the buffer.  There are three cases to consider:
     // 1. There is a new NAL unit in the buffer, and it's small enough to deliver
     //    to the RTP sink (as is).
@@ -292,9 +264,6 @@ void H264or5Fragmenter::doGetNextFrame() {
 
     // Complete delivery to the client:
     FramedSource::afterGetting(this);
-
-	// ASE to remove
-//	printf("H264or5Fragmenter::doGetNextFrame - fragmentation - end\r\n");
  }
 }
 
@@ -308,10 +277,6 @@ void H264or5Fragmenter::afterGettingFrame(void* clientData, unsigned frameSize,
 					  unsigned numTruncatedBytes,
 					  struct timeval presentationTime,
 					  unsigned durationInMicroseconds) {
-						  
-	// ASE to remove
-//	printf("H264or5Fragmenter::afterGettingFrame\r\n");
-						  
   H264or5Fragmenter* fragmenter = (H264or5Fragmenter*)clientData;
   fragmenter->afterGettingFrame1(frameSize, numTruncatedBytes, presentationTime,
 				 durationInMicroseconds);
@@ -321,9 +286,6 @@ void H264or5Fragmenter::afterGettingFrame1(unsigned frameSize,
 					   unsigned numTruncatedBytes,
 					   struct timeval presentationTime,
 					   unsigned durationInMicroseconds) {
-	// ASE To remove
-//	printf("H264or5Fragmenter::afterGettingFrame1\r\n");
-						   
   fNumValidDataBytes += frameSize;
   fSaveNumTruncatedBytes = numTruncatedBytes;
   fPresentationTime = presentationTime;

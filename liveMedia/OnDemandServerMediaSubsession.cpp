@@ -57,32 +57,20 @@ OnDemandServerMediaSubsession::~OnDemandServerMediaSubsession() {
 
 char const*
 OnDemandServerMediaSubsession::sdpLines() {
-	// ASE to remove
-//	printf("OnDemandServerMediaSubsession::sdpLines\r\n");
-	
   if (fSDPLines == NULL) {
     // We need to construct a set of SDP lines that describe this
     // subsession (as a unicast stream).  To do so, we first create
     // dummy (unused) source and "RTPSink" objects,
     // whose parameters we use for the SDP lines:
     unsigned estBitrate;
-	
-	// ASE to remove
-//	printf("Creation de new stream source - debut \r\n");
-	
+
     FramedSource* inputSource = createNewStreamSource(0, estBitrate);
     if (inputSource == NULL) return NULL; // file not found
 
-	// ASE to remove
-//	printf("Création de new stream source - fin \r\n");
-	
     struct in_addr dummyAddr;
     dummyAddr.s_addr = 0;
     Groupsock* dummyGroupsock = createGroupsock(dummyAddr, 0);
     unsigned char rtpPayloadType = 96 + trackNumber()-1; // if dynamic
-	// ASE to remove
-//	printf("OnDemandServerMediaSubsession::sdpLines - createNewRTPSink\r\n" );
-
     RTPSink* dummyRTPSink = createNewRTPSink(dummyGroupsock, rtpPayloadType, inputSource);
     if (dummyRTPSink != NULL && dummyRTPSink->estimatedBitrate() > 0) estBitrate = dummyRTPSink->estimatedBitrate();
 
@@ -109,10 +97,7 @@ void OnDemandServerMediaSubsession
 		      Port& serverRTPPort,
 		      Port& serverRTCPPort,
 		      void*& streamToken) {
-	
-	// ASE to remove
-//	printf( "OnDemandServerMediaSubsession::getStreamParameters" );
-				  
+
   if (destinationAddress == 0) destinationAddress = clientAddress;
   struct in_addr destinationAddr; destinationAddr.s_addr = destinationAddress;
   isMulticast = False;
@@ -144,7 +129,7 @@ void OnDemandServerMediaSubsession
 	NoReuse dummy(envir()); // ensures that we skip over ports that are already in use
 	for (serverPortNum = fInitialPortNum; ; ++serverPortNum) {
 	  struct in_addr dummyAddr; dummyAddr.s_addr = 0;
-	  
+
 	  serverRTPPort = serverPortNum;
 	  rtpGroupsock = createGroupsock(dummyAddr, serverRTPPort);
 	  if (rtpGroupsock->socketNum() >= 0) break; // success
@@ -350,18 +335,13 @@ void OnDemandServerMediaSubsession
 
 void OnDemandServerMediaSubsession::deleteStream(unsigned clientSessionId,
 						 void*& streamToken) {
-	// ASE to remove
-//	printf("!!! OnDemandServerMediaSubsession::deleteStream\r\n");
-	
+
   StreamState* streamState = (StreamState*)streamToken;
 
   // Look up (and remove) the destinations for this client session:
   Destinations* destinations
     = (Destinations*)(fDestinationsHashTable->Lookup((char const*)clientSessionId));
   if (destinations != NULL) {
-	// ASE to remove
-//	printf("!!! OnDemandServerMediaSubsession::deleteStream - qqchose a enlever\r\n");
-		
     fDestinationsHashTable->Remove((char const*)clientSessionId);
 
     // Stop streaming to these destinations:
@@ -590,10 +570,6 @@ void StreamState::pause() {
 }
 
 void StreamState::endPlaying(Destinations* dests, unsigned clientSessionId) {
-	// ASE to remove
-//	printf("!!! StreamState::endPlaying\r\n");
-
-	
 #if 0
   // The following code is temporarily disabled, because it erroneously sends RTCP "BYE"s to all clients if multiple
   // clients are streaming from the same data source (i.e., if "reuseFirstSource" is True), and we don't want that to happen

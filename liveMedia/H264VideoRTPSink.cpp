@@ -74,9 +74,6 @@ H264VideoRTPSink* H264VideoRTPSink
 }
 
 Boolean H264VideoRTPSink::sourceIsCompatibleWithUs(MediaSource& source) {
-	// ASE to remove
-//	printf("H264VideoRTPSink::sourceIsCompatibleWithUs\r\n");
-		
   // Our source must be an appropriate framer:
   return source.isH264VideoStreamFramer();
 }

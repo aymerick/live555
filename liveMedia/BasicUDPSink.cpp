@@ -48,9 +48,6 @@ Boolean BasicUDPSink::continuePlaying() {
 }
 
 void BasicUDPSink::continuePlaying1() {
-	// ASE to remove
-//	printf("BasicUDPSink::continuePlaying1\r\n");
-
   nextTask() = NULL;
   if (fSource != NULL) {
     fSource->getNextFrame(fOutputBuffer, fMaxPayloadSize,
